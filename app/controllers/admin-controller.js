@@ -2,7 +2,6 @@ const Model = require('../models/admin-model.js');
 
 // adding new restauarant in the db
 exports.addNew = (req, res) => {
-    console.log("body", req.body)
     if(!req.body){
         res.status(400).send({
             messsage: "Content Cannot be empty"
