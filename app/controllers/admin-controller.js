@@ -25,12 +25,29 @@ exports.addNew = (req, res) => {
 
 // fetching all the restaurants 
 exports.findAll = (req, res) =>{
+    Model.findAll((err, data)=>{
+        if(err)
+        res.status(500).send({
+            message: err.message|| "Some error"});
+            else
+            res.send(data);
+            });
+        };
 
-};
-
-// finding one restaurant 
+// finding one restaurant based on restaurant name and owner name
 exports.findOne = (req, res) =>{
+    const Restaurant = new Model ({
+        name: req.body.name,
+        owner: req.body.owner
+    });
 
+    Model.findOne(Restaurant, (err, data) =>{
+        if(err)
+        res.status(500).send({
+    message: err.message|| "Some error"});
+    else
+    res.send(data);
+    });
 };
 
 // updating details of one restaurant
