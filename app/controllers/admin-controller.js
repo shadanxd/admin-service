@@ -6,6 +6,7 @@ exports.addNew = (req, res) => {
         res.status(400).send({
             messsage: "Content Cannot be empty"
         });
+        return;
     }
 
     const Restaurant = new Model({
@@ -15,9 +16,19 @@ exports.addNew = (req, res) => {
     });
 
     Model.create(Restaurant, (err, data) => {
-        if(err)
-        res.status(500).send({
-    message: err.message|| "Some error"});
+        if(err){
+            if(err.kind == 'duplicate'){
+                res.status(200).send({
+                    message: "Restaurant with same name owner and same city exists"
+                });
+                return;
+            }
+            else{
+                res.status(500).send({
+                    message: err.message|| "Some error"});
+                    return;
+            }
+        }
     else
     res.send(data);
     });
@@ -36,15 +47,27 @@ exports.findAll = (req, res) =>{
 
 // finding one restaurant based on restaurant name and owner name
 exports.findOne = (req, res) =>{
+    if(!req.body){
+        res.status(400).send({
+            messsage: "Content Cannot be empty"
+        });
+        return;
+    }
     const Restaurant = new Model ({
         name: req.body.name,
         owner: req.body.owner
     });
 
     Model.findOne(Restaurant, (err, data) =>{
-        if(err)
-        res.status(500).send({
-    message: err.message|| "Some error"});
+        if(err){
+            if (err.kind == 'not_found'){
+                res.status(404).send({"message": "restaurant not found"});
+            }
+            else
+            res.status(500).send({
+                message: err.message|| "Some error"});
+        }
+        
     else
     res.send(data);
     });
@@ -52,9 +75,55 @@ exports.findOne = (req, res) =>{
 
 // updating details of one restaurant
 exports.update = (req, res) =>{
-
+    if(!req.body || !req.query.id){
+        res.status(400).send({
+            messsage: "Content or ID Cannot be empty"
+        });
+        return;
+    }
+    id = req.query.id;
+    const Restaurant = new Model ({
+        name: req.body.name,
+        owner: req.body.owner,
+        city: req.body.city
+    });
+    Model.update(id, Restaurant, (err, data) =>{
+        if(err){
+            if (err.kind === 'not_found'){
+                res.status(404).send({"message": "restaurant not found"});
+            }
+            else if(err.kind=== 'data_unchanged'){
+                res.status(200).send({"message":"data unchanged"});
+            }
+            else
+            res.status(500).send({
+                message: err.message|| "Some error"});
+        }
+    else
+    res.send(data);
+    });
 };
 
 exports.delete = (req, res) =>{
+    if (!req.query.id){
+        res.status(400).send({
+            messsage: "Content or ID Cannot be empty"
+    })
+    return;
+}
+
+    Model.delete(req.query.id, (err, data)=>{
+        if(err){
+            if (err.kind === 'not_found'){
+                res.status(404).send({"message": "restaurant not found"});
+            }
+            else
+            res.status(500).send({
+                message: err.message|| "Some error"});
+        }
+
+        else
+        res.send(data);
+    });
 
 };

@@ -12,7 +12,7 @@ module.exports = app => {
     // find specific restaurant
     router.get('/findOne', controller.findOne);
 
-    //update details of restaurant
+    //update details of restaurant by Id
     router.put('/update', controller.update);
 
     //delete a restaurant
