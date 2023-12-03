@@ -16,9 +16,19 @@ exports.addNew = (req, res) => {
     });
 
     Model.create(Restaurant, (err, data) => {
-        if(err)
-        res.status(500).send({
-    message: err.message|| "Some error"});
+        if(err){
+            if(err.kind == 'duplicate'){
+                res.status(200).send({
+                    message: "Restaurant with same name owner and same city exists"
+                });
+                return;
+            }
+            else{
+                res.status(500).send({
+                    message: err.message|| "Some error"});
+                    return;
+            }
+        }
     else
     res.send(data);
     });
