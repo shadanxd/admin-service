@@ -9,9 +9,10 @@ const Restaurant = function(model){
 }
 
 Restaurant.create = (newRestaurant, result) =>{
-    //check if restaurant with same name and owner name in city exists or not
+    //adding data into db using the created database model being sent
     sql.query(`INSERT INTO ${dbConfig.table} SET ?`, newRestaurant, (err, res) => {
         if(err){
+            //checks if a duplicate restaurant exists in the db
             if (err.code == 'ER_DUP_ENTRY'){
                 console.log({ERROR: "Duplicate entry"});
                 result({kind: "duplicate"}, null);
@@ -55,6 +56,7 @@ Restaurant.findOne = (findRestaurant, result)=>{
         return;
       }
     if(res.length ==0){
+        //checks if there are no restaurant with the input name and owners
         console.log({ERROR: "Restaurant not found"});
         result({kind: "not_found"}, null);
 
@@ -66,24 +68,28 @@ Restaurant.findOne = (findRestaurant, result)=>{
 
 //Updating restaurant
 Restaurant.update = (id, updateRestaurant, result) => {
+    //checks if the restaurant with this specific id exists
     sql.query(`SELECT * FROM ${dbConfig.table} WHERE id = ?`, [id], (err, res) =>{
         if (err) {
             console.log("ERROR: ", err);
             result(err, null);
             return;
           }
+          //updates user if it doesnt exists in the first place
           else if (res.length == 0){
             result({kind: "not_found"}, null);
             console.log({ERROR: "Restaurant not found"});
             return;
           }
           else{
+            // if it exists then updates the db
             sql.query(`UPDATE ${dbConfig.table} SET ? WHERE id = ?`, [updateRestaurant, id], (errr, ress)=>{
                 if (errr) {
                     console.log("ERROR: ", errr);
                     result(err, null);
                     return;
                   };
+                  //checks if the updates data and already existing data are same in the database
                   if (ress.changedRows === 0){
                     console.log({ERROR: "Data Unchanged"});
                     result({kind: "data_unchanged"}, null);
@@ -98,7 +104,7 @@ Restaurant.update = (id, updateRestaurant, result) => {
     
 };
 
-//Deleting
+//Deleting restaurant based on id 
 Restaurant.delete = (id, result) => {
     sql.query(`DELETE FROM ${dbConfig.table} WHERE id = ?`, [id], (err, res) => {
         if (err) {
