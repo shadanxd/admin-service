@@ -8,13 +8,13 @@ exports.addNew = (req, res) => {
         });
         return;
     }
-
+    // creating data model using Restuarant object
     const Restaurant = new Model({
         name: req.body.name,
         owner: req.body.owner,
         city: req.body.city
     });
-
+    
     Model.create(Restaurant, (err, data) => {
         if(err){
             if(err.kind == 'duplicate'){
