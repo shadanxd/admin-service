@@ -40,4 +40,33 @@ Restaurant.create = (newRestaurant, result) =>{
    
 };
 
+//querying all the restaurants from the db
+Restaurant.findAll = (result) => {
+    sql.query(`SELECT name, city, owner FROM ${dbConfig.table}`, (err, res) => {
+        if (err) {
+            console.log("error: ", err);
+            result(err, null);
+            return;
+        }
+        result(null, res);
+    });
+};
+
+// Querying restaurants with name and owner on db
+Restaurant.findOne = (findRestaurant, result)=>{
+    sql.query(`SELECT name, owner, city FROM ${dbConfig.table} WHERE LOWER(name)=LOWER(?) AND LOWER(owner)=LOWER(?)`,
+  [findRestaurant.name, findRestaurant.owner], 
+  (err, res) => {
+    if (err) {
+        console.log("error: ", err);
+        result(err, null);
+        return;
+      }
+    if(res.length ==0)
+    result(null, {"message": "No such restaurant exists"});
+    else
+    result(null, res);
+  });
+};
+
 module.exports = Restaurant
