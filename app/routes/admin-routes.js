@@ -15,6 +15,9 @@ module.exports = app => {
     //update details of restaurant by Id
     router.put('/update', controller.update);
 
+    //update restaurant active status
+    router.put('/status', controller.status);
+
     //delete a restaurant
     router.delete('/delete', controller.delete);
 

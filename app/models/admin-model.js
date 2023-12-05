@@ -27,7 +27,7 @@ Restaurant.create = (newRestaurant, result) =>{
 
         else{
             console.log("Added Restaurant: ", {id: res.insertId, ...newRestaurant});
-        result(null, {id: res.insertId, ...newRestaurant});
+        result(null, {"message": "success", id: res.insertId, ...newRestaurant});
         }
         
     });
@@ -96,12 +96,51 @@ Restaurant.update = (id, updateRestaurant, result) => {
         
                   }
                   else if(ress.changedRows>0)
-                  result(null, {"message": "Updates Succesfully", ...updateRestaurant});
+                  result(null, {"message": "success", ...updateRestaurant});
             });
           }
           
     });
     
+};
+
+//updating restaurant status in Database
+Restaurant.status = (id, res_status, result) =>
+{
+  //checks if the restaurant with this specific id exists
+  sql.query(`SELECT * FROM ${dbConfig.table} WHERE id = ?`, [id], (err, res) =>{
+      if (err) {
+          console.log("ERROR: ", err);
+          result(err, null);
+          return;
+        }
+        //updates user if it doesnt exists in the first place
+        else if (res.length == 0){
+          result({kind: "not_found"}, null);
+          console.log({ERROR: "Restaurant not found"});
+          return;
+        }
+        else{
+          // if it exists then updates the db
+          let res_status_db;
+          if (res_status == 'online')
+          res_status_db = true;
+          else
+          res_status_db = false;
+          sql.query(`UPDATE ${dbConfig.table} SET is_active = ? WHERE id = ?`, [res_status_db, id], (errr, ress)=>{
+              if (errr) {
+                  console.log("ERROR: ", errr);
+                  result(err, null);
+                  return;
+                }
+                
+                else
+                result(null, {"message": "success"});
+          });
+        }
+        
+  });
+  
 };
 
 //Deleting restaurant based on id 
@@ -119,7 +158,7 @@ Restaurant.delete = (id, result) => {
           return;
         }
         else
-        result(null, {"message": "Deleted Succesfully"});
+        result(null, {"message": "success"});
       });
 }
 
