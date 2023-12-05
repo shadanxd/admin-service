@@ -10,10 +10,13 @@ module.exports = app => {
     router.get('/findAll', controller.findAll);
 
     // find specific restaurant
-    router.get('/findOne', controller.findOne);
+    router.get('/find', controller.find);
 
     //update details of restaurant by Id
     router.put('/update', controller.update);
+
+    //update restaurant active status
+    router.put('/status', controller.status);
 
     //delete a restaurant
     router.delete('/delete', controller.delete);

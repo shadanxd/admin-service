@@ -46,19 +46,27 @@ exports.findAll = (req, res) =>{
         };
 
 // finding one restaurant based on restaurant name and owner name
-exports.findOne = (req, res) =>{
-    if(!req.body){
+exports.find = (req, res) =>{
+    //checking if parameters match
+    const allowedParameters = ['name', 'city', 'owner', 'is_active', 'id'];
+
+    if (!req.query || Object.keys(req.query).length === 0 || !Object.keys(req.query).every(param => allowedParameters.includes(param))) {
         res.status(400).send({
-            messsage: "Content Cannot be empty"
+            message: "Request query should exist and contain only the parameters: name, city, owner, is_active"
         });
         return;
     }
-    const Restaurant = new Model ({
-        name: req.body.name,
-        owner: req.body.owner
+    //mapping request parameters and values based on string and non string values
+    const conditions = Object.keys(req.query).map(param => {
+        if (['city', 'owner', 'name'].includes(param)) {
+            return `${param} = '${req.query[param]}'`;
+        } else {
+            return `${param} = ${req.query[param]}`;
+        }
     });
+    console.log(conditions)
 
-    Model.findOne(Restaurant, (err, data) =>{
+    Model.find(conditions, (err, data) =>{
         if(err){
             if (err.kind == 'not_found'){
                 res.status(404).send({"message": "restaurant not found"});
@@ -103,6 +111,32 @@ exports.update = (req, res) =>{
     res.send(data);
     });
 };
+
+//updating restaurant status
+exports.status = (req, res) => {
+    if (!req.query.id || !req.query.status || (req.query.status !== 'online' && req.query.status !== 'offline')) {
+        res.status(400).send({
+            message: "id or status missing, status should be either 'online' or 'offline'"
+        });
+        return;
+    }
+    
+    const id = req.query.id;
+    const status = req.query.status
+    Model.status(id, status, (err, data) =>{
+        if(err){
+            if (err.kind === 'not_found'){
+                res.status(404).send({"message": "restaurant not found"});
+            }
+            else
+            res.status(500).send({
+                message: err.message|| "Some error"});
+        }
+        else
+        res.send(data);
+
+    })
+}
 
 exports.delete = (req, res) =>{
     if (!req.query.id){
