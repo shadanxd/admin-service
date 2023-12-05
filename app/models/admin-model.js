@@ -46,9 +46,11 @@ Restaurant.findAll = (result) => {
 };
 
 // Querying restaurants with name and owner on db
-Restaurant.findOne = (findRestaurant, result)=>{
-    sql.query(`SELECT * FROM ${dbConfig.table} WHERE LOWER(name)=LOWER(?) AND LOWER(owner)=LOWER(?)`,
-  [findRestaurant.name, findRestaurant.owner], 
+Restaurant.find= (conditions, result)=>{
+  //creating sql string by joining all the condtions
+  const conditions_string = `WHERE ${conditions.join(' AND ')}`
+    sql.query(`SELECT * FROM ${dbConfig.table} ${conditions_string}`,
+  [], 
   (err, res) => {
     if (err) {
         console.log("ERROR: ", err);
